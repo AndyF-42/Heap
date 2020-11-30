@@ -1,12 +1,14 @@
 #include <iostream>
 #include <cstring>
+#include <fstream>
+#include <algorithm>
 
 using namespace std;
 
-void add();
+void add(int heap[]);
 void print(int heap[]);
-void remove();
-void organize();
+void remove(int heap[]);
+void organize(int heap[], int index);
 
 int main() {
 
@@ -21,11 +23,11 @@ int main() {
     cout << ">> ";
     cin >> input;
     if (strcmp(input, "ADD") == 0) {
-      add();
+      add(heap);
     } else if (strcmp(input, "PRINT") == 0) {
       print(heap);
     } else if (strcmp(input, "REMOVE") == 0) {
-      remove();
+      remove(heap);
     } else if (strcmp(input, "QUIT") != 0) { //anything else besides quit is invalid
       cout << "Invalid command." << endl;
     }
@@ -38,9 +40,55 @@ int main() {
 
 
 //adds numbers to heap by manual input or by file
-void add() {
+void add(int heap[]) {
+  char method[10];
+  cout << "Add by FILE or by INPUT? ";
+  cin >> method;
 
+  char data[300];
+  int i = 0;
+  if (strcmp(method, "FILE") == 0) {
+    char fileName[30];
+    cout << "File name: ";
+    cin >> fileName;
+    
+    ifstream numbers;
+    srand(time(0));
+    numbers.open(fileName);
+    if (!numbers) {
+      cout << "Could not find/open " << fileName;
+      exit(1);
+    }
+    while (numbers >> data) {
+      while (heap[i] != 0) {
+	i++;
+      }
+      heap[i] = atoi(data);
+    }
+  } else if (strcmp(method, "INPUT") == 0) {
+    cout << "Please enter a series of space separated numbers between 1 and 1000:" << endl;
+    cin.get();
+    cin.get(data, 300);
+    cin.get();
+  } else {
+    cout << "Please enter either FILE or INPUT." << endl;
+  } //TODO - add while loop to wait for valid answer?
 
+  char *ptr;
+  ptr = strtok(data, " ");
+
+  while (ptr) {
+    while (heap[i] != 0) { //get to the first empty slot in the array
+      i++;
+    }
+    heap[i] = atoi(ptr); //parse and add the int
+    ptr = strtok(NULL, " ");
+  }
+
+  for (int i = 50; i > 0; i--) {
+    organize(heap, i);
+  }
+  cout << "Added." << endl;
 }
 
 // [1, 2, 3, 4, 0, 0, 7]
@@ -61,7 +109,10 @@ void print(int heap[]) {
     }
     if (heap[i + bin - 1] != 0) {
       cout << heap[i + bin - 1];
+    } else {
+      cout << "-";
     }
+    cout << " ";
 
     if (i == bin) {
       bin *= 2;
@@ -73,11 +124,24 @@ void print(int heap[]) {
 }
 
 //removes a given number from the heap
-void remove() {
+void remove(int heap[]) {
 
 }
 
 //recursively organizes heap into proper max heap structure
-void organize() {
-
+void organize(int heap[], int index) {
+  int maxChild;
+  
+  if (heap[2*index] > heap[2*index+1]) { //get the index of the larger child
+    maxChild = 2*index;
+  } else {
+    maxChild = 2*index+1;
+  }
+  
+  if (heap[maxChild] > heap[index]) { //if larger child is greater, swap and re-organize the child
+    int temp = heap[maxChild];
+    heap[maxChild] = heap[index];
+    heap[index] = temp;
+    organize(heap, maxChild);
+  }
 }
