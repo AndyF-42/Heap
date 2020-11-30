@@ -25,7 +25,7 @@ int main() {
     cin >> input;
     if (strcmp(input, "ADD") == 0) {
       add(heap);
-    } else if (strcmp(input, "PRINT") == 0) {
+    } else if (strcmp(input, "PRINT") == 0) { //fancy or basic print
       char answer[10];
       cout << "FANCY or BASIC? ";
       cin >> answer;
